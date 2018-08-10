@@ -1,16 +1,15 @@
 package com.dc.jssh;
 
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.common.LoggerFactory;
 import net.schmizz.sshj.common.StreamCopier;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
+import net.schmizz.sshj.userauth.method.AuthPublickey;
 
 public class SshSession {
     private String hostname;
@@ -28,8 +27,10 @@ public class SshSession {
     public void connect() throws IOException {
         ssh.loadKnownHosts();
         ssh.addHostKeyVerifier(new PromiscuousVerifier());
+        String location = System.getProperty("user.home") + "/.ssh/id_rsa";
+        KeyProvider keyProvider = ssh.loadKeys(location);
         ssh.connect(hostname);
-        ssh.authPassword(System.getProperty("user.name").toLowerCase(), "ndoqwhb");
+        ssh.auth(System.getProperty("user.name"), new AuthPublickey(keyProvider));
         try (Session session = ssh.startSession()) {
             session.allocateDefaultPTY();
             final Session.Shell shell = session.startShell();
