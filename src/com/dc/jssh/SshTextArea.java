@@ -1,25 +1,33 @@
 package com.dc.jssh;
 
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-
-import java.io.IOException;
 import java.io.OutputStream;
+import javax.swing.*;
 
 public class SshTextArea extends OutputStream {
-    private TextArea textArea;
+    private JTextArea textArea;
+    private StringBuilder buffer;
 
     public SshTextArea() {
-        textArea = new TextArea();
+        textArea = new JTextArea();
+        buffer = new StringBuilder(128);
     }
 
     @Override
-    public void write(int b) throws IOException {
-        textArea.appendText(String.valueOf((char)b));
-        textArea.end();
+    public void write(int b) {
+        char c = (char) b;
+
+        if (c == '\u0007') {
+            return;
+        }
+        String value = Character.toString(c);
+        buffer.append(value);
+        if (value.equals("\n") || b == 27) {
+            textArea.append(buffer.toString());
+            buffer.delete(0, buffer.length());
+        }
     }
 
-    public TextArea getTextArea() {
+    public JTextArea getTextArea() {
         return textArea;
     }
 }
