@@ -1,15 +1,24 @@
 package com.dc.jssh;
 
-import java.io.OutputStream;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import javax.swing.*;
 
-public class SshTextArea extends OutputStream {
+public class SshTextArea extends PipedOutputStream {
     private JTextArea textArea;
     private StringBuilder buffer;
+    private PipedInputStream input;
 
     public SshTextArea() {
         textArea = new JTextArea();
         buffer = new StringBuilder(128);
+    }
+
+    public SshTextArea(JTextArea textArea, PipedInputStream input, int capacity) throws IOException {
+        super(input);
+        this.textArea = textArea;
+        buffer = new StringBuilder(capacity);
     }
 
     @Override
